@@ -83,25 +83,40 @@ def add_movie():
         genre = request.form['genre']
         duration = request.form['duration']
         showtimes = request.form['showtimes']
+        poster = request.form['poster']  # ✅ New line
 
         conn = connect_db()
         conn.execute('''
-            INSERT INTO movies (title, director, genre, duration, showtimes)
-            VALUES (?, ?, ?, ?, ?)
-        ''', (title, director, genre, duration, showtimes))
+            INSERT INTO movies (title, director, genre, duration, showtimes, poster)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (title, director, genre, duration, showtimes, poster))  # ✅ Include poster
         conn.commit()
         conn.close()
         return redirect(url_for('view_bookings'))
 
     return render_template('add_movie.html')
 
-# ✅ List Movies (Public)
+# ✅ List Movies (Public) — with genre filtering & search
 @app.route('/movies')
 def list_movies():
+    genre = request.args.get('genre')
+    search = request.args.get('search')
+
     conn = connect_db()
-    movies = conn.execute("SELECT * FROM movies").fetchall()
+    query = "SELECT * FROM movies WHERE 1=1"
+    params = []
+
+    if genre:
+        query += " AND genre LIKE ?"
+        params.append(f"%{genre}%")
+
+    if search:
+        query += " AND title LIKE ?"
+        params.append(f"%{search}%")
+
+    movies = conn.execute(query, params).fetchall()
     conn.close()
-    return render_template('movies.html', movies=movies)
+    return render_template('movies.html', movies=movies, genre=genre or '', search=search or '')
 
 # ✅ Book Ticket (Public)
 @app.route('/book_ticket/<int:movie_id>', methods=['GET', 'POST'])
@@ -124,8 +139,21 @@ def book_ticket(movie_id):
 
     conn.close()
     return render_template('book_ticket.html', movie=movie)
+# ✅ Add this function after init_db()
+def add_poster_column():
+    conn = connect_db()
+    try:
+        conn.execute("ALTER TABLE movies ADD COLUMN poster TEXT")
+        print("✅ 'poster' column added to movies table.")
+    except sqlite3.OperationalError as e:
+        if "duplicate column name" in str(e):
+            print("ℹ️ 'poster' column already exists. Skipping.")
+        else:
+            raise
+    conn.close()
 
 # ✅ Run app and initialize DB
 if __name__ == "__main__":
     init_db()
+    add_poster_column()  # ✅ run only once
     app.run(debug=True)
