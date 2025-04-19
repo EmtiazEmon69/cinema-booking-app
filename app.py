@@ -32,12 +32,13 @@ def init_db():
                 contact TEXT,
                 movie_id INTEGER,
                 showtime TEXT,
+                price REAL,
                 FOREIGN KEY (movie_id) REFERENCES movies(movie_id)
             )
         ''')
     conn.close()
 
-# ✅ Add 'poster' column (only once)
+# ✅ Add 'poster' column
 def add_poster_column():
     conn = connect_db()
     try:
@@ -46,6 +47,19 @@ def add_poster_column():
     except sqlite3.OperationalError as e:
         if "duplicate column name" in str(e):
             print("ℹ️ 'poster' column already exists. Skipping.")
+        else:
+            raise
+    conn.close()
+
+# ✅ Add 'price' column
+def add_price_column():
+    conn = connect_db()
+    try:
+        conn.execute("ALTER TABLE bookings ADD COLUMN price REAL")
+        print("✅ 'price' column added to bookings table.")
+    except sqlite3.OperationalError as e:
+        if "duplicate column name" in str(e):
+            print("ℹ️ 'price' column already exists. Skipping.")
         else:
             raise
     conn.close()
@@ -65,27 +79,24 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html')
 
-# ✅ Logout
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# ✅ Dashboard
 @app.route('/dashboard')
 def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     return render_template('dashboard.html')
 
-# ✅ Redirect root to login or dashboard
 @app.route('/')
 def index():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     return redirect(url_for('dashboard'))
 
-# ✅ View Bookings (Protected)
+# ✅ View Bookings
 @app.route('/bookings')
 def view_bookings():
     if not session.get('logged_in'):
@@ -93,14 +104,14 @@ def view_bookings():
 
     conn = connect_db()
     bookings = conn.execute('''
-        SELECT b.booking_id, b.customer_name, b.contact, b.showtime, m.title AS movie_title
+        SELECT b.booking_id, b.customer_name, b.contact, b.showtime, b.price, m.title AS movie_title
         FROM bookings b
         JOIN movies m ON b.movie_id = m.movie_id
     ''').fetchall()
     conn.close()
     return render_template('bookings.html', bookings=bookings)
 
-# ✅ Add Movie (Protected)
+# ✅ Add Movie
 @app.route('/add_movie', methods=['GET', 'POST'])
 def add_movie():
     if not session.get('logged_in'):
@@ -125,7 +136,7 @@ def add_movie():
 
     return render_template('add_movie.html')
 
-# ✅ List Movies (Public) — with search and genre filter
+# ✅ List Movies (Public)
 @app.route('/movies')
 def list_movies():
     genre = request.args.get('genre')
@@ -157,11 +168,12 @@ def book_ticket(movie_id):
         customer_name = request.form['customer_name']
         contact = request.form['contact']
         showtime = request.form['showtime']
+        price = 12.50  # Static price per ticket
 
         conn.execute('''
-            INSERT INTO bookings (customer_name, contact, movie_id, showtime)
-            VALUES (?, ?, ?, ?)
-        ''', (customer_name, contact, movie_id, showtime))
+            INSERT INTO bookings (customer_name, contact, movie_id, showtime, price)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (customer_name, contact, movie_id, showtime, price))
         conn.commit()
         conn.close()
         return redirect(url_for('view_bookings'))
@@ -173,4 +185,5 @@ def book_ticket(movie_id):
 if __name__ == "__main__":
     init_db()
     add_poster_column()
+    add_price_column()
     app.run(debug=True)

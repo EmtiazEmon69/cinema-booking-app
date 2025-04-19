@@ -1,69 +1,67 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #f7f7f7;
-    padding: 20px;
-    color: #333;
+/* Header */
+.dashboard-header {
+    background-color: purple;
+    padding: 20px 0;
+    color: white;
     text-align: center;
+    margin-bottom: 40px;
 }
 
-h1 {
-    color: purple;
+.dashboard-header h1 {
+    margin: 0;
+    font-size: 30px;
+}
+
+/* Welcome text */
+.welcome-text {
+    font-size: 20px;
+    text-align: center;
     margin-bottom: 30px;
-}
-
-.movie-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 25px;
-    padding: 10px 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.movie-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.movie-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-}
-
-.movie-card img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.book-btn {
-    display: inline-block;
-    padding: 10px 18px;
-    background: purple;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    margin-top: 12px;
-    transition: background 0.3s;
-}
-
-.book-btn:hover {
-    background: #5a007a;
-}
-
-.back-link {
-    display: inline-block;
-    margin-top: 40px;
-    text-decoration: none;
     color: #444;
-    font-size: 16px;
 }
 
-.back-link:hover {
+/* Dashboard Menu */
+.dashboard-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Buttons */
+.dashboard-btn {
+    background-color: #6a0dad;
+    color: white;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 18px;
+    width: 220px;
+    text-align: center;
+    transition: background 0.3s ease;
+}
+a {
+    color: purple;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
     text-decoration: underline;
+    color: #5a007a;
+}
+
+.dashboard-btn:hover {
+    background-color: #4b0082;
+}
+.dashboard-btn {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn {
+    background-color: crimson;
+}
+
+.logout-btn:hover {
+    background-color: #a1002d;
 }

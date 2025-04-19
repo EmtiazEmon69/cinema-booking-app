@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
-<head><title>Book Ticket</title></head>
+<head>
+    <title>Book Ticket</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <body>
     <h1>🎟️ Book a Ticket for {{ movie.title }}</h1>
     <form method="POST">
@@ -10,6 +13,10 @@
         <input type="submit" value="Book Ticket">
     </form>
     <br>
+    <p><strong>Price:</strong> $12.50</p>
+
     <a href="{{ url_for('view_bookings') }}">⬅ Back to Bookings</a>
+    <a href="{{ url_for('dashboard') }}">🏠 Back to Dashboard</a>
+
 </body>
 </html>

@@ -2,24 +2,73 @@
 <html>
 <head>
     <title>Now Showing</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .movie-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .movie-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            width: 250px;
+            text-align: center;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .movie-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .book-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: purple;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>🎞️ Now Showing</h1>
+    <form method="GET" action="{{ url_for('list_movies') }}">
+        <input type="text" name="search" placeholder="Search by title or genre">
+        <button type="submit">Search</button>
+    </form>
+    
+
     {% if movies %}
-        <ul>
-            {% for movie in movies %}
-                <li>
-                    <strong>{{ movie.title }}</strong> ({{ movie.genre }}) - {{ movie.duration }} mins
-                    <br>Showtimes: {{ movie.showtimes }}
-                    <br><a href="{{ url_for('book_ticket', movie_id=movie.movie_id) }}">🎟️ Book Now</a>
-                    <hr>
-                </li>
-            {% endfor %}
-        </ul>
+    <div class="movie-grid">
+        {% for movie in movies %}
+        <div class="movie-card">
+            <img src="{{ movie.poster }}" alt="{{ movie.title }} poster">
+            <h2>{{ movie.title }}</h2>
+            <p><strong>Genre:</strong> {{ movie.genre }}</p>
+            <p><strong>Duration:</strong> {{ movie.duration }} mins</p>
+            <p><strong>Showtimes:</strong> {{ movie.showtimes }}</p>
+            <a href="{{ url_for('book_ticket', movie_id=movie.movie_id) }}" class="book-btn">🎟️ Book Now</a>
+        </div>
+        {% endfor %}
+    </div>
     {% else %}
         <p>No movies available.</p>
     {% endif %}
+
     <br>
-    <a href="{{ url_for('view_bookings') }}">📋 View Bookings</a>
+    <a href="{{ url_for('view_bookings') }}" class="back-link">📋 View Bookings</a>
+    <a href="{{ url_for('dashboard') }}">🏠 Back to Dashboard</a>
+
 </body>
 </html>
