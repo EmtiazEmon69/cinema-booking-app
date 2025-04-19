@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Bookings</title>
+</head>
+<body>
+    <h1>📋 All Bookings</h1>
+    {% if bookings %}
+        <table border="1" cellpadding="5">
+            <tr>
+                <th>Booking ID</th>
+                <th>Customer Name</th>
+                <th>Contact</th>
+                <th>Movie Title</th>
+                <th>Showtime</th>
+            </tr>
+            {% for b in bookings %}
+            <tr>
+                <td>{{ b.booking_id }}</td>
+                <td>{{ b.customer_name }}</td>
+                <td>{{ b.contact }}</td>
+                <td>{{ b.movie_title }}</td>
+                <td>{{ b.showtime }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No bookings yet.</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('view_bookings') }}">Back to Home</a>
+
+
+</body>
+</html>

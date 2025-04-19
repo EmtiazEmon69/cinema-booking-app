@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cinema Booking</title>
+</head>
+<body>
+    <h1>Now Showing</h1>
+    <ul>
+        {% for movie in movies %}
+        <li>
+            <strong>{{ movie.title }}</strong> ({{ movie.genre }}) - Directed by {{ movie.director }} <br>
+            Duration: {{ movie.duration }} mins <br>
+            Showtimes: {{ movie.showtimes }} <br>
+            <a href="{{ url_for('book_ticket', movie_id=movie.movie_id) }}">Book Ticket</a>
+        </li>
+        <hr>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('add_movie') }}">➕ Add New Movie</a>
+</body>
+</html>

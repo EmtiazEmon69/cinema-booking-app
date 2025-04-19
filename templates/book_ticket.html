@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Book Ticket</title></head>
+<body>
+    <h1>🎟️ Book a Ticket for {{ movie.title }}</h1>
+    <form method="POST">
+        Name: <input type="text" name="customer_name"><br>
+        Contact: <input type="text" name="contact"><br>
+        Showtime (e.g. 2:00 PM): <input type="text" name="showtime"><br>
+        <input type="submit" value="Book Ticket">
+    </form>
+    <br>
+    <a href="{{ url_for('view_bookings') }}">⬅ Back to Bookings</a>
+</body>
+</html>

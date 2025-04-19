@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Now Showing</title>
+</head>
+<body>
+    <h1>🎞️ Now Showing</h1>
+    {% if movies %}
+        <ul>
+            {% for movie in movies %}
+                <li>
+                    <strong>{{ movie.title }}</strong> ({{ movie.genre }}) - {{ movie.duration }} mins
+                    <br>Showtimes: {{ movie.showtimes }}
+                    <br><a href="{{ url_for('book_ticket', movie_id=movie.movie_id) }}">🎟️ Book Now</a>
+                    <hr>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No movies available.</p>
+    {% endif %}
+    <br>
+    <a href="{{ url_for('view_bookings') }}">📋 View Bookings</a>
+</body>
+</html>
