@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>🎬 Cinema Booking Admin Dashboard</h1>
+
+    <ul style="list-style: none;">
+        <li><a href="{{ url_for('list_movies') }}">🎞️ View Movies</a></li>
+        <li><a href="{{ url_for('view_bookings') }}">📋 View Bookings</a></li>
+        <li><a href="{{ url_for('add_movie') }}">➕ Add Movie</a></li>
+        <li><a href="{{ url_for('logout') }}">🔒 Logout</a></li>
+    </ul>
+</body>
+</html>

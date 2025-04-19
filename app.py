@@ -4,13 +4,13 @@ import sqlite3
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# ✅ Step 2: Connect to SQLite
+# ✅ Connect to SQLite
 def connect_db():
     conn = sqlite3.connect('cinema.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-# ✅ Step 3: Initialize DB (Tables)
+# ✅ Initialize DB (Tables)
 def init_db():
     conn = connect_db()
     with conn:
@@ -21,7 +21,8 @@ def init_db():
                 director TEXT,
                 genre TEXT,
                 duration INTEGER,
-                showtimes TEXT
+                showtimes TEXT,
+                poster TEXT
             )
         ''')
         conn.execute('''
@@ -36,7 +37,20 @@ def init_db():
         ''')
     conn.close()
 
-# ✅ Login
+# ✅ Add 'poster' column (only once)
+def add_poster_column():
+    conn = connect_db()
+    try:
+        conn.execute("ALTER TABLE movies ADD COLUMN poster TEXT")
+        print("✅ 'poster' column added to movies table.")
+    except sqlite3.OperationalError as e:
+        if "duplicate column name" in str(e):
+            print("ℹ️ 'poster' column already exists. Skipping.")
+        else:
+            raise
+    conn.close()
+
+# ✅ Login Page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -44,19 +58,34 @@ def login():
         password = request.form['password']
         if username == 'admin' and password == 'admin123':
             session['logged_in'] = True
-            return redirect(url_for('view_bookings'))
+            session['username'] = username
+            return redirect(url_for('dashboard'))
         else:
             flash('Invalid credentials!')
             return redirect(url_for('login'))
     return render_template('login.html')
 
+# ✅ Logout
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-# ✅ View Bookings (Protected)
+# ✅ Dashboard
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return render_template('dashboard.html')
+
+# ✅ Redirect root to login or dashboard
 @app.route('/')
+def index():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return redirect(url_for('dashboard'))
+
+# ✅ View Bookings (Protected)
 @app.route('/bookings')
 def view_bookings():
     if not session.get('logged_in'):
@@ -83,20 +112,20 @@ def add_movie():
         genre = request.form['genre']
         duration = request.form['duration']
         showtimes = request.form['showtimes']
-        poster = request.form['poster']  # ✅ New line
+        poster = request.form['poster']
 
         conn = connect_db()
         conn.execute('''
             INSERT INTO movies (title, director, genre, duration, showtimes, poster)
             VALUES (?, ?, ?, ?, ?, ?)
-        ''', (title, director, genre, duration, showtimes, poster))  # ✅ Include poster
+        ''', (title, director, genre, duration, showtimes, poster))
         conn.commit()
         conn.close()
         return redirect(url_for('view_bookings'))
 
     return render_template('add_movie.html')
 
-# ✅ List Movies (Public) — with genre filtering & search
+# ✅ List Movies (Public) — with search and genre filter
 @app.route('/movies')
 def list_movies():
     genre = request.args.get('genre')
@@ -139,21 +168,9 @@ def book_ticket(movie_id):
 
     conn.close()
     return render_template('book_ticket.html', movie=movie)
-# ✅ Add this function after init_db()
-def add_poster_column():
-    conn = connect_db()
-    try:
-        conn.execute("ALTER TABLE movies ADD COLUMN poster TEXT")
-        print("✅ 'poster' column added to movies table.")
-    except sqlite3.OperationalError as e:
-        if "duplicate column name" in str(e):
-            print("ℹ️ 'poster' column already exists. Skipping.")
-        else:
-            raise
-    conn.close()
 
-# ✅ Run app and initialize DB
+# ✅ Run App
 if __name__ == "__main__":
     init_db()
-    add_poster_column()  # ✅ run only once
+    add_poster_column()
     app.run(debug=True)
