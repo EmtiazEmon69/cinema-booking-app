@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = 'your_secret_key'  # Change this to something secure for production
 
 # ✅ Connect to SQLite
 def connect_db():
@@ -10,7 +10,7 @@ def connect_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-# ✅ Initialize DB (Tables)
+# ✅ Initialize Database
 def init_db():
     conn = connect_db()
     with conn:
@@ -38,33 +38,35 @@ def init_db():
         ''')
     conn.close()
 
-# ✅ Add 'poster' column
+# ✅ Add columns if needed (run once)
 def add_poster_column():
     conn = connect_db()
     try:
         conn.execute("ALTER TABLE movies ADD COLUMN poster TEXT")
-        print("✅ 'poster' column added to movies table.")
+        print("✅ 'poster' column added.")
     except sqlite3.OperationalError as e:
         if "duplicate column name" in str(e):
-            print("ℹ️ 'poster' column already exists. Skipping.")
-        else:
-            raise
+            print("ℹ️ 'poster' column already exists.")
     conn.close()
 
-# ✅ Add 'price' column
 def add_price_column():
     conn = connect_db()
     try:
         conn.execute("ALTER TABLE bookings ADD COLUMN price REAL")
-        print("✅ 'price' column added to bookings table.")
+        print("✅ 'price' column added.")
     except sqlite3.OperationalError as e:
         if "duplicate column name" in str(e):
-            print("ℹ️ 'price' column already exists. Skipping.")
-        else:
-            raise
+            print("ℹ️ 'price' column already exists.")
     conn.close()
 
-# ✅ Login Page
+# ✅ Redirect root to login or dashboard
+@app.route('/')
+def index():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return redirect(url_for('dashboard'))
+
+# ✅ Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -79,22 +81,18 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html')
 
+# ✅ Logout
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
+# ✅ Admin Dashboard
 @app.route('/dashboard')
 def dashboard():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
     return render_template('dashboard.html')
-
-@app.route('/')
-def index():
-    if not session.get('logged_in'):
-        return redirect(url_for('login'))
-    return redirect(url_for('dashboard'))
 
 # ✅ View Bookings
 @app.route('/bookings')
@@ -136,7 +134,7 @@ def add_movie():
 
     return render_template('add_movie.html')
 
-# ✅ List Movies (Public)
+# ✅ View Movies (with search and filter)
 @app.route('/movies')
 def list_movies():
     genre = request.args.get('genre')
@@ -158,7 +156,7 @@ def list_movies():
     conn.close()
     return render_template('movies.html', movies=movies, genre=genre or '', search=search or '')
 
-# ✅ Book Ticket (Public)
+# ✅ Book Ticket
 @app.route('/book_ticket/<int:movie_id>', methods=['GET', 'POST'])
 def book_ticket(movie_id):
     conn = connect_db()
@@ -168,7 +166,7 @@ def book_ticket(movie_id):
         customer_name = request.form['customer_name']
         contact = request.form['contact']
         showtime = request.form['showtime']
-        price = 12.50  # Static price per ticket
+        price = 12.50  # ✅ Fixed price
 
         conn.execute('''
             INSERT INTO bookings (customer_name, contact, movie_id, showtime, price)
@@ -181,9 +179,9 @@ def book_ticket(movie_id):
     conn.close()
     return render_template('book_ticket.html', movie=movie)
 
-# ✅ Run App
+# ✅ Start Server
 if __name__ == "__main__":
     init_db()
     add_poster_column()
     add_price_column()
-    app.run(debug=True)
+    app.run(debug=False)  # Use debug=False for production
